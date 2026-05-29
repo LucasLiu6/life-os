@@ -149,3 +149,19 @@ Expected response shape:
   "briefing": "Good morning..."
 }
 ```
+
+## Evening Check-in API
+
+Generate an evening check-in from active goals, open tasks, recent morning briefings, and recent daily check-ins:
+
+```bash
+curl -X POST http://127.0.0.1:8000/agent/evening-checkin
+```
+
+Expected response shape:
+
+```json
+{
+  "message": "Evening check-in..."
+}
+```

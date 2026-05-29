@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException
 
+from app.services.evening_checkin import generate_evening_checkin
 from app.services.morning_briefing import generate_morning_briefing
 
 
@@ -19,3 +20,18 @@ def create_morning_briefing() -> dict[str, str]:
         ) from error
 
     return {"briefing": briefing}
+
+
+@router.post("/evening-checkin")
+def create_evening_checkin() -> dict[str, str]:
+    try:
+        message = generate_evening_checkin()
+    except RuntimeError as error:
+        raise HTTPException(status_code=500, detail=str(error)) from error
+    except Exception as error:
+        raise HTTPException(
+            status_code=500,
+            detail="Failed to generate evening check-in.",
+        ) from error
+
+    return {"message": message}
