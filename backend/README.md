@@ -165,3 +165,35 @@ Expected response shape:
   "message": "Evening check-in..."
 }
 ```
+
+## Parse Evening Reply API
+
+Parse a natural-language evening reply and save it as a daily check-in:
+
+```bash
+curl -X POST http://127.0.0.1:8000/agent/parse-evening-reply \
+  -H "Content-Type: application/json" \
+  -d '{
+    "reply": "I finished my resume update, got blocked on calculus, energy was 7, and tomorrow I want to finish the calculus homework.",
+    "date": "2026-05-29"
+  }'
+```
+
+Expected response shape:
+
+```json
+{
+  "parsed_checkin": {
+    "id": "...",
+    "date": "2026-05-29",
+    "planned_top_3": null,
+    "completed": "Finished resume update",
+    "blockers": "Got blocked on calculus",
+    "energy_level": 7,
+    "mood": null,
+    "notes": null,
+    "tomorrow_focus": "Finish the calculus homework",
+    "created_at": "..."
+  }
+}
+```

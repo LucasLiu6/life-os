@@ -1,6 +1,8 @@
 from fastapi import APIRouter, HTTPException
 
+from app.schemas.agent import ParseEveningReplyRequest, ParseEveningReplyResponse
 from app.services.evening_checkin import generate_evening_checkin
+from app.services.evening_reply_parser import parse_evening_reply
 from app.services.morning_briefing import generate_morning_briefing
 
 
@@ -35,3 +37,20 @@ def create_evening_checkin() -> dict[str, str]:
         ) from error
 
     return {"message": message}
+
+
+@router.post("/parse-evening-reply", response_model=ParseEveningReplyResponse)
+def create_parsed_evening_reply(
+    request: ParseEveningReplyRequest,
+) -> dict:
+    try:
+        parsed_checkin = parse_evening_reply(request.reply, request.date)
+    except RuntimeError as error:
+        raise HTTPException(status_code=500, detail=str(error)) from error
+    except Exception as error:
+        raise HTTPException(
+            status_code=500,
+            detail="Failed to parse evening reply.",
+        ) from error
+
+    return {"parsed_checkin": parsed_checkin}
