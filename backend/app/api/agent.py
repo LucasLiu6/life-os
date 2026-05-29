@@ -1,9 +1,15 @@
 from fastapi import APIRouter, HTTPException
 
-from app.schemas.agent import ParseEveningReplyRequest, ParseEveningReplyResponse
+from app.schemas.agent import (
+    ParseEveningReplyRequest,
+    ParseEveningReplyResponse,
+    WeeklyReviewRequest,
+    WeeklyReviewResponse,
+)
 from app.services.evening_checkin import generate_evening_checkin
 from app.services.evening_reply_parser import parse_evening_reply
 from app.services.morning_briefing import generate_morning_briefing
+from app.services.weekly_review import InvalidWeeklyReviewWindow, generate_weekly_review
 
 
 router = APIRouter(prefix="/agent", tags=["agent"])
@@ -54,3 +60,20 @@ def create_parsed_evening_reply(
         ) from error
 
     return {"parsed_checkin": parsed_checkin}
+
+
+@router.post("/weekly-review", response_model=WeeklyReviewResponse)
+def create_weekly_review(request: WeeklyReviewRequest) -> dict[str, str]:
+    try:
+        review = generate_weekly_review(request.start_date, request.end_date)
+    except InvalidWeeklyReviewWindow as error:
+        raise HTTPException(status_code=400, detail=str(error)) from error
+    except RuntimeError as error:
+        raise HTTPException(status_code=500, detail=str(error)) from error
+    except Exception as error:
+        raise HTTPException(
+            status_code=500,
+            detail="Failed to generate weekly review.",
+        ) from error
+
+    return {"review": review}

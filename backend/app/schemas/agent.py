@@ -12,3 +12,12 @@ class ParseEveningReplyRequest(BaseModel):
 
 class ParseEveningReplyResponse(BaseModel):
     parsed_checkin: DailyCheckinResponse
+
+
+class WeeklyReviewRequest(BaseModel):
+    start_date: date_type | None = None
+    end_date: date_type | None = None
+
+
+class WeeklyReviewResponse(BaseModel):
+    review: str

@@ -197,3 +197,24 @@ Expected response shape:
   }
 }
 ```
+
+## Weekly Review API
+
+Generate a weekly review from goals, tasks, daily check-ins, and recent agent runs:
+
+```bash
+curl -X POST http://127.0.0.1:8000/agent/weekly-review \
+  -H "Content-Type: application/json" \
+  -d '{
+    "start_date": "2026-05-23",
+    "end_date": "2026-05-29"
+  }'
+```
+
+Expected response shape:
+
+```json
+{
+  "review": "..."
+}
+```
