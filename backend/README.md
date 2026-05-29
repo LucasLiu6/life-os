@@ -94,3 +94,40 @@ curl -X POST http://127.0.0.1:8000/tasks \
   -H "Content-Type: application/json" \
   -d '{"domain":"2027 Summer Internship","title":"Update resume"}'
 ```
+
+## Daily Check-ins API
+
+List recent daily check-ins:
+
+```bash
+curl http://127.0.0.1:8000/daily-checkins
+```
+
+List the last 7 daily check-ins:
+
+```bash
+curl "http://127.0.0.1:8000/daily-checkins?limit=7"
+```
+
+List daily check-ins in a date range:
+
+```bash
+curl "http://127.0.0.1:8000/daily-checkins?start_date=2026-05-01&end_date=2026-05-29"
+```
+
+Create a daily check-in:
+
+```bash
+curl -X POST http://127.0.0.1:8000/daily-checkins \
+  -H "Content-Type: application/json" \
+  -d '{
+    "date": "2026-05-29",
+    "planned_top_3": "Study calculus, update resume, soccer training",
+    "completed": "Updated resume",
+    "blockers": "Calculus took longer than expected",
+    "energy_level": 7,
+    "mood": "focused",
+    "notes": "Need to start earlier tomorrow",
+    "tomorrow_focus": "Finish calculus homework"
+  }'
+```

@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 
+from app.api.daily_checkins import router as daily_checkins_router
 from app.api.goals import router as goals_router
 from app.api.health import router as health_router
 from app.api.tasks import router as tasks_router
@@ -11,3 +12,4 @@ app = FastAPI(title=settings.app_name)
 app.include_router(health_router)
 app.include_router(goals_router)
 app.include_router(tasks_router)
+app.include_router(daily_checkins_router)
