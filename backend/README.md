@@ -29,6 +29,8 @@ Then edit `.env` and set your local Supabase values:
 ```text
 SUPABASE_URL=https://your-project-id.supabase.co
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+OPENAI_API_KEY=your-openai-api-key
+OPENAI_MODEL=gpt-5.2
 ```
 
 Do not commit `.env` or real Supabase keys.
@@ -130,4 +132,20 @@ curl -X POST http://127.0.0.1:8000/daily-checkins \
     "notes": "Need to start earlier tomorrow",
     "tomorrow_focus": "Finish calculus homework"
   }'
+```
+
+## Morning Briefing API
+
+Generate a morning briefing from active goals, open tasks, and recent daily check-ins:
+
+```bash
+curl -X POST http://127.0.0.1:8000/agent/morning-briefing
+```
+
+Expected response shape:
+
+```json
+{
+  "briefing": "Good morning..."
+}
 ```

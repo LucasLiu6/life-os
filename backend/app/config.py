@@ -14,6 +14,8 @@ class Settings:
     log_level: str = os.getenv("LOG_LEVEL", "info")
     supabase_url: str | None = os.getenv("SUPABASE_URL")
     supabase_service_role_key: str | None = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
+    openai_api_key: str | None = os.getenv("OPENAI_API_KEY")
+    openai_model: str = os.getenv("OPENAI_MODEL", "gpt-5.2")
 
 
 settings = Settings()
