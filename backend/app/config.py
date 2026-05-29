@@ -16,6 +16,8 @@ class Settings:
     supabase_service_role_key: str | None = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
     openai_api_key: str | None = os.getenv("OPENAI_API_KEY")
     openai_model: str = os.getenv("OPENAI_MODEL", "gpt-5.2")
+    telegram_bot_token: str | None = os.getenv("TELEGRAM_BOT_TOKEN")
+    telegram_chat_id: str | None = os.getenv("TELEGRAM_CHAT_ID")
 
 
 settings = Settings()

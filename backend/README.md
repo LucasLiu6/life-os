@@ -31,6 +31,8 @@ SUPABASE_URL=https://your-project-id.supabase.co
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 OPENAI_API_KEY=your-openai-api-key
 OPENAI_MODEL=gpt-5.2
+TELEGRAM_BOT_TOKEN=your-telegram-bot-token
+TELEGRAM_CHAT_ID=your-telegram-chat-id
 ```
 
 Do not commit `.env` or real Supabase keys.
@@ -218,3 +220,39 @@ Expected response shape:
   "review": "..."
 }
 ```
+
+## Telegram API
+
+Send a test message to the configured `TELEGRAM_CHAT_ID`:
+
+```bash
+curl -X POST http://127.0.0.1:8000/telegram/send-test-message
+```
+
+Mock a Telegram `/start` webhook update:
+
+```bash
+curl -X POST http://127.0.0.1:8000/telegram/webhook \
+  -H "Content-Type: application/json" \
+  -d '{
+    "message": {
+      "chat": { "id": "123456" },
+      "text": "/start"
+    }
+  }'
+```
+
+Mock a Telegram `/morning` webhook update:
+
+```bash
+curl -X POST http://127.0.0.1:8000/telegram/webhook \
+  -H "Content-Type: application/json" \
+  -d '{
+    "message": {
+      "chat": { "id": "123456" },
+      "text": "/morning"
+    }
+  }'
+```
+
+This step does not configure Telegram `setWebhook`. Real webhook setup requires a public URL and should use a secret webhook path or Telegram secret token before production.
