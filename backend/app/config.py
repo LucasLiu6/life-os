@@ -12,6 +12,8 @@ class Settings:
     app_name: str = os.getenv("APP_NAME", "life-os-backend")
     app_env: str = os.getenv("APP_ENV", "local")
     log_level: str = os.getenv("LOG_LEVEL", "info")
+    supabase_url: str | None = os.getenv("SUPABASE_URL")
+    supabase_service_role_key: str | None = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
 
 
 settings = Settings()

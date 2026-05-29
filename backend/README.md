@@ -24,6 +24,15 @@ pip install -r requirements.txt
 cp .env.example .env
 ```
 
+Then edit `.env` and set your local Supabase values:
+
+```text
+SUPABASE_URL=https://your-project-id.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+```
+
+Do not commit `.env` or real Supabase keys.
+
 ## Run Locally
 
 From `backend/` with the virtual environment active:
@@ -54,4 +63,34 @@ From `backend/` with the virtual environment active:
 
 ```bash
 pytest
+```
+
+## Goals And Tasks API
+
+After starting the server, list goals:
+
+```bash
+curl http://127.0.0.1:8000/goals
+```
+
+Create a goal:
+
+```bash
+curl -X POST http://127.0.0.1:8000/goals \
+  -H "Content-Type: application/json" \
+  -d '{"domain":"Academics","title":"Finish calculus homework"}'
+```
+
+List tasks:
+
+```bash
+curl http://127.0.0.1:8000/tasks
+```
+
+Create a task:
+
+```bash
+curl -X POST http://127.0.0.1:8000/tasks \
+  -H "Content-Type: application/json" \
+  -d '{"domain":"2027 Summer Internship","title":"Update resume"}'
 ```
