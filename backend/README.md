@@ -268,6 +268,21 @@ curl -X POST http://127.0.0.1:8000/telegram/webhook \
   }'
 ```
 
+Mock a normal Telegram text reply:
+
+```bash
+curl -X POST http://127.0.0.1:8000/telegram/webhook \
+  -H "Content-Type: application/json" \
+  -d '{
+    "message": {
+      "chat": { "id": "123456" },
+      "text": "I finished resume work, got blocked on calculus, energy was 7, and tomorrow I need to finish homework."
+    }
+  }'
+```
+
+In V1, normal non-command Telegram text is treated as an evening check-in reply. Slash commands such as `/morning`, `/evening`, and `/weekly` are handled as commands. Unknown slash commands return help and are not parsed as check-ins.
+
 This step does not configure Telegram `setWebhook`. Real webhook setup requires a public URL and should use a secret webhook path or Telegram secret token before production.
 
 ## Local Scheduler

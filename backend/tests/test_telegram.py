@@ -100,6 +100,38 @@ def test_webhook_unknown_shape_is_ignored() -> None:
     send.assert_not_called()
 
 
+def test_webhook_non_text_update_is_ignored() -> None:
+    with (
+        patch("app.api.telegram.send_telegram_message") as send,
+        patch("app.api.telegram.parse_evening_reply") as parser,
+    ):
+        response = client.post(
+            "/telegram/webhook",
+            json={"message": {"chat": {"id": 123}, "photo": [{"file_id": "photo-1"}]}},
+        )
+
+    assert response.status_code == 200
+    assert response.json() == {"status": "ignored"}
+    send.assert_not_called()
+    parser.assert_not_called()
+
+
+def test_webhook_empty_text_is_ignored() -> None:
+    with (
+        patch("app.api.telegram.send_telegram_message") as send,
+        patch("app.api.telegram.parse_evening_reply") as parser,
+    ):
+        response = client.post(
+            "/telegram/webhook",
+            json={"message": {"chat": {"id": 123}, "text": "   "}},
+        )
+
+    assert response.status_code == 200
+    assert response.json() == {"status": "ignored"}
+    send.assert_not_called()
+    parser.assert_not_called()
+
+
 def test_webhook_start_sends_welcome_message() -> None:
     with patch("app.api.telegram.send_telegram_message") as send:
         response = client.post(
@@ -159,17 +191,105 @@ def test_webhook_weekly_calls_generator_and_sends_result() -> None:
     send.assert_called_once_with("Weekly review", chat_id="123")
 
 
-def test_webhook_unknown_text_sends_help_without_parser() -> None:
+def test_webhook_unknown_command_sends_help_without_parser() -> None:
     with (
         patch("app.api.telegram.send_telegram_message") as send,
-        patch("app.services.evening_reply_parser.parse_evening_reply") as parser,
+        patch("app.api.telegram.parse_evening_reply") as parser,
     ):
         response = client.post(
             "/telegram/webhook",
-            json={"message": {"chat": {"id": 123}, "text": "I finished my work"}},
+            json={"message": {"chat": {"id": 123}, "text": "/unknown"}},
         )
 
     assert response.status_code == 200
     assert response.json() == {"status": "handled"}
     assert "Available commands" in send.call_args.args[0]
     parser.assert_not_called()
+
+
+def test_webhook_free_text_parses_evening_reply_and_confirms_saved() -> None:
+    parsed_checkin = {
+        "id": "checkin-1",
+        "energy_level": 7,
+        "completed": "Finished resume work",
+        "blockers": "Calculus took longer than expected",
+        "tomorrow_focus": "Finish calculus homework",
+        "notes": "This should not appear in Telegram confirmation.",
+    }
+
+    with (
+        patch("app.api.telegram.parse_evening_reply", return_value=parsed_checkin) as parser,
+        patch("app.api.telegram.send_telegram_message") as send,
+    ):
+        response = client.post(
+            "/telegram/webhook",
+            json={
+                "message": {
+                    "chat": {"id": 123},
+                    "text": "I finished resume work. Energy was 7. Tomorrow is calculus.",
+                }
+            },
+        )
+
+    assert response.status_code == 200
+    assert response.json() == {"status": "handled"}
+    parser.assert_called_once_with(
+        reply="I finished resume work. Energy was 7. Tomorrow is calculus.",
+        checkin_date=None,
+    )
+    send.assert_called_once_with(
+        (
+            "✅ Check-in saved.\n"
+            "Energy: 7\n"
+            "Completed: Finished resume work\n"
+            "Blockers: Calculus took longer than expected\n"
+            "Tomorrow: Finish calculus homework"
+        ),
+        chat_id="123",
+    )
+
+
+def test_webhook_free_text_confirmation_omits_null_and_empty_fields() -> None:
+    parsed_checkin = {
+        "id": "checkin-1",
+        "energy_level": None,
+        "completed": "  ",
+        "blockers": None,
+        "tomorrow_focus": "Start weekly review",
+    }
+
+    with (
+        patch("app.api.telegram.parse_evening_reply", return_value=parsed_checkin),
+        patch("app.api.telegram.send_telegram_message") as send,
+    ):
+        response = client.post(
+            "/telegram/webhook",
+            json={"message": {"chat": {"id": 123}, "text": "Tomorrow weekly review."}},
+        )
+
+    assert response.status_code == 200
+    send.assert_called_once_with(
+        "✅ Check-in saved.\nTomorrow: Start weekly review",
+        chat_id="123",
+    )
+
+
+def test_webhook_free_text_parse_failure_sends_friendly_error() -> None:
+    with (
+        patch("app.api.telegram.parse_evening_reply", side_effect=RuntimeError("technical details")),
+        patch("app.api.telegram.send_telegram_message") as send,
+    ):
+        response = client.post(
+            "/telegram/webhook",
+            json={"message": {"chat": {"id": 123}, "text": "I finished some work."}},
+        )
+
+    assert response.status_code == 200
+    assert response.json() == {"status": "handled"}
+    send.assert_called_once_with(
+        (
+            "I could not save that check-in. Try replying with what you completed, "
+            "blockers, energy 1-10, and tomorrow's focus."
+        ),
+        chat_id="123",
+    )
