@@ -33,6 +33,19 @@ OPENAI_API_KEY=your-openai-api-key
 OPENAI_MODEL=gpt-5.2
 TELEGRAM_BOT_TOKEN=your-telegram-bot-token
 TELEGRAM_CHAT_ID=your-telegram-chat-id
+
+SCHEDULER_ENABLED=false
+TIMEZONE=America/New_York
+
+MORNING_BRIEFING_HOUR=8
+MORNING_BRIEFING_MINUTE=30
+
+EVENING_CHECKIN_HOUR=22
+EVENING_CHECKIN_MINUTE=30
+
+WEEKLY_REVIEW_DAY_OF_WEEK=sun
+WEEKLY_REVIEW_HOUR=20
+WEEKLY_REVIEW_MINUTE=0
 ```
 
 Do not commit `.env` or real Supabase keys.
@@ -256,3 +269,47 @@ curl -X POST http://127.0.0.1:8000/telegram/webhook \
 ```
 
 This step does not configure Telegram `setWebhook`. Real webhook setup requires a public URL and should use a secret webhook path or Telegram secret token before production.
+
+## Local Scheduler
+
+The local scheduler sends proactive Telegram messages while the FastAPI server process is running. This is local/dev only.
+
+Important behavior:
+
+- The scheduler only runs while the FastAPI server process is running.
+- If the computer sleeps, shuts down, or the server stops, scheduled messages will not send.
+- `uvicorn --reload` may cause duplicate scheduler behavior in some environments. This is acceptable for local dev, but it should not be treated as a production scheduler.
+- The scheduler is disabled by default. Set `SCHEDULER_ENABLED=true` in `backend/.env` to enable it locally.
+- Do not commit `backend/.env` or any real Telegram, OpenAI, or Supabase keys.
+
+Default schedule:
+
+- Morning briefing: every day at `08:30`
+- Evening check-in: every day at `22:30`
+- Weekly review: Sunday at `20:00`
+- Timezone: `America/New_York`
+
+Example local scheduler settings:
+
+```text
+SCHEDULER_ENABLED=true
+TIMEZONE=America/New_York
+
+MORNING_BRIEFING_HOUR=8
+MORNING_BRIEFING_MINUTE=30
+
+EVENING_CHECKIN_HOUR=22
+EVENING_CHECKIN_MINUTE=30
+
+WEEKLY_REVIEW_DAY_OF_WEEK=sun
+WEEKLY_REVIEW_HOUR=20
+WEEKLY_REVIEW_MINUTE=0
+```
+
+Scheduled Telegram messages include these headers:
+
+```text
+🌅 Morning Briefing
+🌙 Evening Check-in
+📊 Weekly Review
+```
